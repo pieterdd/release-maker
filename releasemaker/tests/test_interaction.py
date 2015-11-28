@@ -6,6 +6,7 @@ import os
 from unittest import TestCase
 from releasemaker.cli_io import prepare_release
 from releasemaker.api import GitHubRepo
+from releasemaker.factories import PullRequestFactory
 from releasemaker.git import GitInterface
 from mock import patch
 
@@ -27,20 +28,22 @@ class InteractionTest(TestCase):
         self.ask_target_branch_patch = patch('releasemaker.cli_io.ask_target_branch', return_value=self.target_branch_name)
         self.ask_filter_labels_patch = patch('releasemaker.cli_io.ask_filter_labels', return_value=['Ready'])
         self.get_open_prs_patch = patch.object(GitHubRepo, 'get_open_pull_requests', return_value=[])
+        self.ask_include_pr = patch('releasemaker.cli_io.ask_include_pr', return_value=True)
         self.ask_export_csv = patch('releasemaker.cli_io.ask_export_csv', return_value=True)
 
     @contextmanager
     def activate_mocks(self):
         with self.ask_token_patch, self.infer_repo_details_patch, self.tracked_file_patch, self.call_in_repo_patch,\
               self.check_output_in_repo_patch, self.ask_target_branch_patch, self.ask_filter_labels_patch,\
-              self.get_open_prs_patch, self.ask_export_csv:
+              self.get_open_prs_patch, self.ask_include_pr, self.ask_export_csv:
             yield
 
-    def inspect_and_delete_csv(self, csv_file_name, expected_rows):
+    def inspect_and_delete_csv(self, expected_rows):
         """
         Ensure the contents of a CSV file to see if the contents align with the expected values. Then removes it from
         disk to avoid unit test leftovers.
         """
+        csv_file_name = '%s.csv' % self.target_branch_name
         with open(csv_file_name, 'rb') as csv_file:
             csv_reader = csv.reader(csv_file)
             actual_rows = list(csv_reader)
@@ -51,4 +54,16 @@ class InteractionTest(TestCase):
         """Runs through the whole process without any PRs being available."""
         with self.activate_mocks():
             prepare_release()
-            self.inspect_and_delete_csv('%s.csv' % self.target_branch_name, [])
+            self.inspect_and_delete_csv([])
+
+    def test_all_prs_included(self):
+        """Runs through the process with a few PRs being available and including all of them."""
+        prs = [PullRequestFactory() for i in range(0, 3)]
+        self.get_open_prs_patch = patch.object(GitHubRepo, 'get_open_pull_requests', return_value=prs)
+
+        with self.activate_mocks():
+            prepare_release()
+            self.inspect_and_delete_csv([
+                [str(pr.pr_id), str(pr.branch_name)]
+                for pr in prs
+            ])
