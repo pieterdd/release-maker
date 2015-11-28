@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from contextlib import contextmanager
 import csv
+import os
 from unittest import TestCase
 from releasemaker.cli_io import prepare_release
 from releasemaker.api import GitHubRepo
@@ -35,17 +36,19 @@ class InteractionTest(TestCase):
               self.get_open_prs_patch, self.ask_export_csv:
             yield
 
-    def inspect_csv(self, csv_file_name, expected_rows):
+    def inspect_and_delete_csv(self, csv_file_name, expected_rows):
         """
-        Ensure the contents of a CSV file to see if the contents align with the expected values.
+        Ensure the contents of a CSV file to see if the contents align with the expected values. Then removes it from
+        disk to avoid unit test leftovers.
         """
         with open(csv_file_name, 'rb') as csv_file:
             csv_reader = csv.reader(csv_file)
             actual_rows = list(csv_reader)
             self.assertListEqual(actual_rows, expected_rows)
+        os.remove(csv_file_name)
 
     def test_no_prs(self):
         """Runs through the whole process without any PRs being available."""
         with self.activate_mocks():
             prepare_release()
-            self.inspect_csv('%s.csv' % self.target_branch_name, [])
+            self.inspect_and_delete_csv('%s.csv' % self.target_branch_name, [])
