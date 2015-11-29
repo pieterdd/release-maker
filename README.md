@@ -10,7 +10,7 @@ This tool was made for Git release workflows where a batch of pull requests are 
 Installation
 ------------
 
-You can run `setup.py` in the same way that you would with other Python packages. For your convenience, we've included a `prepare_release` symlink. If you make sure that this command is reachable from your environment's `PATH` variable, you can invoke it from any directory.
+You can run `setup.py` in the same way that you would with other Python packages. For your convenience, we've included a `prepare_release` symlink. If this symlink is reachable from your [environment's path](https://en.wikipedia.org/wiki/PATH_(variable)) (or copied into a directory that's in your path), you can invoke it from any folder by calling `prepare_release`.
 
 
 How it works
