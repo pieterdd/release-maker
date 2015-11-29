@@ -8,7 +8,7 @@ from releasemaker.exceptions import MergeFailure
 from releasemaker.git import GitInterface
 
 
-def prepare_release():
+def make_release():
     """
     Performs necessary user interaction to make a new release branch.
 

@@ -4,7 +4,7 @@ from contextlib import contextmanager
 import csv
 import os
 from unittest import TestCase
-from releasemaker.cli_io import prepare_release
+from releasemaker.cli_io import make_release
 from releasemaker.api import GitHubRepo
 from releasemaker.factories import PullRequestFactory
 from releasemaker.git import GitInterface
@@ -69,7 +69,7 @@ class RunthroughTest(TestCase):
     def test_no_prs(self):
         """Runs through the whole process without any PRs being available."""
         with self.activate_mocks():
-            prepare_release()
+            make_release()
             self.assert_git_commands_ran([])
             self.inspect_and_delete_csv([])
 
@@ -80,7 +80,7 @@ class RunthroughTest(TestCase):
         with self.activate_mocks():
             self.get_open_prs_mock.return_value = prs
 
-            prepare_release()
+            make_release()
             self.assert_git_commands_ran(prs)
             self.inspect_and_delete_csv([
                 [str(pr.pr_id), str(pr.branch_name)]
@@ -95,6 +95,6 @@ class RunthroughTest(TestCase):
             self.get_open_prs_mock.return_value = prs
             self.ask_include_pr_mock.return_value = False
 
-            prepare_release()
+            make_release()
             self.assert_git_commands_ran([])
             self.inspect_and_delete_csv([])
