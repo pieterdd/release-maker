@@ -1,6 +1,8 @@
 Release Maker
 =============
 
+[![Build Status](https://travis-ci.org/pieterdd/release-maker.svg?branch=feature%2Ftravis-build)](https://travis-ci.org/pieterdd/release-maker)
+
 Use case
 --------
 
