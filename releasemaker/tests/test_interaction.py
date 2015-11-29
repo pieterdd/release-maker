@@ -8,7 +8,7 @@ from releasemaker.cli_io import prepare_release
 from releasemaker.api import GitHubRepo
 from releasemaker.factories import PullRequestFactory
 from releasemaker.git import GitInterface
-from mock import patch
+from mock import patch, call
 
 
 class InteractionTest(TestCase):
@@ -33,7 +33,8 @@ class InteractionTest(TestCase):
 
     @contextmanager
     def activate_mocks(self):
-        with self.ask_token_patch, self.infer_repo_details_patch, self.tracked_file_patch, self.call_in_repo_patch,\
+        with self.ask_token_patch, self.infer_repo_details_patch, self.tracked_file_patch,\
+              self.call_in_repo_patch as self.call_in_repo_mock,\
               self.check_output_in_repo_patch, self.ask_target_branch_patch, self.ask_filter_labels_patch,\
               self.get_open_prs_patch, self.ask_include_pr, self.ask_export_csv:
             yield
@@ -50,10 +51,25 @@ class InteractionTest(TestCase):
             self.assertListEqual(actual_rows, expected_rows)
         os.remove(csv_file_name)
 
+    def assert_git_commands_ran(self, prs):
+        """
+        Given a set of pull requests that should have been merged into a release branch, checks if the appropriate Git
+        commands have run to do so.
+        """
+        expected_commands = [
+            call(['git', 'fetch', '--all']),
+            call(['git', 'checkout', 'origin/master']),
+            call(['git', 'checkout', '-b', self.target_branch_name]),
+        ]
+        for pr in prs:
+            expected_commands.append(call(['git', 'merge', 'origin/%s' % pr.branch_name]))
+        self.assertListEqual(self.call_in_repo_mock.call_args_list, expected_commands)
+
     def test_no_prs(self):
         """Runs through the whole process without any PRs being available."""
         with self.activate_mocks():
             prepare_release()
+            self.assert_git_commands_ran([])
             self.inspect_and_delete_csv([])
 
     def test_all_prs_included(self):
@@ -63,6 +79,7 @@ class InteractionTest(TestCase):
 
         with self.activate_mocks():
             prepare_release()
+            self.assert_git_commands_ran(prs)
             self.inspect_and_delete_csv([
                 [str(pr.pr_id), str(pr.branch_name)]
                 for pr in prs
