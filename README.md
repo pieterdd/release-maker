@@ -4,7 +4,7 @@ Release Maker
 Use case
 --------
 
-This tool was made for Git release workflows where a batch of pull requests are merged together into a temporary release branch to verify that the build will still passed if merged to master.
+This tool was made for Git release workflows where a batch of pull requests are merged together into a temporary release branch to verify that the build will still pass if merged to master.
 
 
 Installation
