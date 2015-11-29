@@ -28,15 +28,16 @@ class RunthroughTest(TestCase):
         self.ask_target_branch_patch = patch('releasemaker.cli_io.ask_target_branch', return_value=self.target_branch_name)
         self.ask_filter_labels_patch = patch('releasemaker.cli_io.ask_filter_labels', return_value=['Ready'])
         self.get_open_prs_patch = patch.object(GitHubRepo, 'get_open_pull_requests', return_value=[])
-        self.ask_include_pr = patch('releasemaker.cli_io.ask_include_pr', return_value=True)
-        self.ask_export_csv = patch('releasemaker.cli_io.ask_export_csv', return_value=True)
+        self.ask_include_pr_patch = patch('releasemaker.cli_io.ask_include_pr', return_value=True)
+        self.ask_export_csv_patch = patch('releasemaker.cli_io.ask_export_csv', return_value=True)
 
     @contextmanager
     def activate_mocks(self):
         with self.ask_token_patch, self.infer_repo_details_patch, self.tracked_file_patch,\
               self.call_in_repo_patch as self.call_in_repo_mock,\
               self.check_output_in_repo_patch, self.ask_target_branch_patch, self.ask_filter_labels_patch,\
-              self.get_open_prs_patch, self.ask_include_pr, self.ask_export_csv:
+              self.get_open_prs_patch as self.get_open_prs_mock, self.ask_include_pr_patch as self.ask_include_pr_mock,\
+              self.ask_export_csv_patch:
             yield
 
     def inspect_and_delete_csv(self, expected_rows):
@@ -73,14 +74,27 @@ class RunthroughTest(TestCase):
             self.inspect_and_delete_csv([])
 
     def test_all_prs_included(self):
-        """Runs through the process with a few PRs being available and including all of them."""
+        """Runs through the process with a few PRs being available, all of which are included."""
         prs = [PullRequestFactory() for i in range(0, 3)]
-        self.get_open_prs_patch = patch.object(GitHubRepo, 'get_open_pull_requests', return_value=prs)
 
         with self.activate_mocks():
+            self.get_open_prs_mock.return_value = prs
+
             prepare_release()
             self.assert_git_commands_ran(prs)
             self.inspect_and_delete_csv([
                 [str(pr.pr_id), str(pr.branch_name)]
                 for pr in prs
             ])
+
+    def test_no_prs_included(self):
+        """Runs through the process with a few PRs being available, but without including any of them."""
+        prs = [PullRequestFactory() for i in range(0, 3)]
+
+        with self.activate_mocks():
+            self.get_open_prs_mock.return_value = prs
+            self.ask_include_pr_mock.return_value = False
+
+            prepare_release()
+            self.assert_git_commands_ran([])
+            self.inspect_and_delete_csv([])

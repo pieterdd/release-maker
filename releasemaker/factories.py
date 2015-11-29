@@ -10,7 +10,7 @@ class IssueFactory(factory.Factory):
         model = Issue
 
     issue_id = factory.Sequence(lambda n: n)
-    labels = []
+    labels = ['Ready']
 
 
 class PullRequestFactory(factory.Factory):
