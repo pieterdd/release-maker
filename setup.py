@@ -10,6 +10,7 @@ setup(
     description='Python tool to combine open GitHub pull requests into a release branch',
     author='Pieter De Decker',
     install_requires=[
+        'setuptools>=17.1',
         'requests>=2.8.1',
         'python-dateutil>=2.4.2',
         'mock>=1.3.0',
