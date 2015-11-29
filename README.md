@@ -9,16 +9,16 @@ Use case
 This tool was made for Git release workflows where a batch of pull requests are merged together into a temporary release branch to verify that the build will still pass if merged to master.
 
 
-Installation
+Installation and usage
+----------------------
+
+You can run `setup.py` in the same way that you would with other Python packages. You can start the release maker by running the `make_release` script. For your convenience, you can copy this symlink to a directory in your [environment's path](https://en.wikipedia.org/wiki/PATH_(variable)) so that you can invoke the script from any folder by calling `make_release`.
+
+
+What it does
 ------------
 
-You can run `setup.py` in the same way that you would with other Python packages. For your convenience, we've included a `prepare_release` symlink. If this symlink is reachable from your [environment's path](https://en.wikipedia.org/wiki/PATH_(variable)) (or copied into a directory that's in your path), you can invoke it from any folder by calling `prepare_release`.
-
-
-How it works
-------------
-
-The tool should be run in the root of a Git repository that is hosted on GitHub. When invoking the `prepare_release.py` script, the tool will do the following:
+The tool should be run in the root of a Git repository that is hosted on GitHub. When the `make_release` script is invoked, the tool will do the following:
 
 - Ask for a [personal API token](https://github.com/settings/tokens) to authenticate with GitHub.
 - Create a temporary release branch originating from the latest `origin/master`. You can choose the branch name.
