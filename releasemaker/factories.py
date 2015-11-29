@@ -20,6 +20,7 @@ class PullRequestFactory(factory.Factory):
     pr_id = factory.Sequence(lambda n: n)
     title = factory.Sequence(lambda n: 'Dummy pull request number %d' % n)
     body = 'This is a test'
+    link = factory.sequence(lambda n: 'http://github.com/organization/repository/pull/%d' % n)
     branch_name = factory.Sequence(lambda n: 'feature-%d' % n)
     created = factory.LazyAttribute(lambda o: (datetime.now() - timedelta(days=2)).isoformat())
     updated = factory.LazyAttribute(lambda o: datetime.now().isoformat())
