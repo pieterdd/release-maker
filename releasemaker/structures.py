@@ -5,11 +5,32 @@ from dateutil import parser
 
 class PullRequest(object):
     """Contains the state of a pull request on GitHub."""
-    def __init__(self, pr_id, title, body, branch_name, created, updated, issue=None):
+    def __init__(self, pr_id, title, body, branch_name, link, created, updated, issue=None):
+        """
+        :param pr_id:
+                ID of the pull request.
+        :param title:
+                Title of the pull request.
+        :param body:
+                Description of the pull request.
+        :param branch_name:
+                Name of the branch that the pull request would merge, as it is shown on GitHub.
+        :param link:
+                URI of the pull request. It's GitHub's standard pull request detail page, so it's human-readable.
+        :param created:
+                Raw string indicating when the pull request was created.
+        :param updated:
+                Raw string indicating when the pull request was last updated.
+        :param issue:
+                Link to the associated `Issue` object. Even if you don't use GitHub's issue tracking, pull requests
+                can have this.
+        :return:
+        """
         self.pr_id = pr_id
         self.title = title
         self.body = body
         self.branch_name = branch_name
+        self.link = link
         self.created = parser.parse(created)
         self.updated = parser.parse(updated)
         self.issue = issue
@@ -20,8 +41,9 @@ class PullRequest(object):
     def unicode_multiline(self):
         """A multiline unicode representation of this pull request."""
         multiline = [
-            '#%d: %s' % (self.pr_id, self.title),
-            self.branch_name,
+            '[#%d] %s' % (self.pr_id, self.title),
+            'Branch: %s' % self.branch_name,
+            'Link: %s' % self.link,
         ]
         if self.issue:
             multiline.append('Labels: %s' % ', '.join(self.issue.labels))

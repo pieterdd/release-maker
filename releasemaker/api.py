@@ -77,7 +77,7 @@ class GitHubRepo(object):
             pr_id = pr_data['number']
             issue_obj = self.get_issue(pr_id)
             pr_obj = PullRequest(pr_id, pr_data['title'], pr_data['body'], pr_data['head']['ref'],
-                                 pr_data['created_at'], pr_data['updated_at'], issue_obj)
+                                 pr_data['html_url'], pr_data['created_at'], pr_data['updated_at'], issue_obj)
 
             # Check if the PR survives the filters
             include_pr = True
