@@ -11,7 +11,7 @@ from releasemaker.git import GitInterface
 from mock import patch, call
 
 
-class InteractionTest(TestCase):
+class RunthroughTest(TestCase):
     """
     Performs an automated runthrough of the release prepping script, while mocking out GitHub API integration and faking
     the git commands that would be executed.
