@@ -63,7 +63,7 @@ class RunthroughTest(TestCase):
             call(['git', 'checkout', '-b', self.target_branch_name]),
         ]
         for pr in prs:
-            expected_commands.append(call(['git', 'merge', 'origin/%s' % pr.branch_name]))
+            expected_commands.append(call(['git', 'merge', '--no-ff', 'origin/%s' % pr.branch_name]))
         self.assertListEqual(self.call_in_repo_mock.call_args_list, expected_commands)
 
     def test_no_prs(self):

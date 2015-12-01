@@ -80,8 +80,10 @@ class GitInterface(object):
         self.call_in_repo_dir(['git', 'checkout', '-b', branch_name])
 
     def merge_branch(self, branch_to_merge):
-        """Merges a given branch into the current branch. Don't prefix with the remote name!"""
+        """
+        Merges a given branch into the current branch. No fast forwarding. Don't prefix branch with the remote name!
+        """
         try:
-            self.call_in_repo_dir(['git', 'merge', '%s/%s' % (self.remote, branch_to_merge)])
+            self.call_in_repo_dir(['git', 'merge', '--no-ff', '%s/%s' % (self.remote, branch_to_merge)])
         except subprocess.CalledProcessError:
             raise MergeFailure(branch_to_merge)
