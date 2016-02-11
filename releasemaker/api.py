@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import requests
+from urllib import urlencode
 
 from releasemaker.exceptions import ResourceNotFound
 from releasemaker.structures import PullRequest, Issue
@@ -23,7 +24,7 @@ class GitHubRepo(object):
         self.repo_name = repo_name
         self.access_token = access_token
 
-    def get_all(self, endpoint):
+    def get_all(self, endpoint, params=None):
         """Traverses all pages of this API call to return all data."""
         merged_json = []
 
@@ -32,7 +33,7 @@ class GitHubRepo(object):
         page = 1
         get_next_page = True
         while get_next_page:
-            json = self.get(endpoint, page)
+            json = self.get(endpoint, page, params)
             merged_json += json
             if not len(json) > 0:
                 get_next_page = False
@@ -40,13 +41,15 @@ class GitHubRepo(object):
 
         return merged_json
 
-    def get(self, endpoint, page=1):
+    def get(self, endpoint, page=1, params=None):
         """Files a GET request against the GitHub API. Returns a Response objects from the requests library."""
         url = 'https://api.github.com/%(endpoint)s?access_token=%(token)s&page=%(page)d' % {
             'endpoint': endpoint,
             'token': self.access_token,
             'page': page,
         }
+        if params is not None:
+            url += '&' + urlencode(params)
         response = requests.get(url)
 
         # Produce specific error on 404. Generic HTTPError otherwise.
@@ -68,6 +71,8 @@ class GitHubRepo(object):
         json = self.get_all('repos/%(owner)s/%(repo)s/pulls' % {
             'owner': self.repo_owner,
             'repo': self.repo_name,
+        }, params={
+            'direction': 'asc',
         })
         required_labels = required_labels or []
 
